@@ -1,0 +1,37 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      KIE_API_KEY: ""
+      TELEGRAM_BOT_TOKEN: ""
+      TELEGRAM_CHANNEL_ID: ""
+      DRY_RUN: "true"
+      TELEGRAM_ENABLED: "false"
+      ALLOW_LIVE_PUBLISH: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+      - run: python -m pip install -e ".[test]"
+      - run: pytest
+      - name: Safe preview
+        run: python -m telegram_ai_autopost --operation safe-check --output preview/result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: safe-preview-${{ github.run_id }}
+          path: preview/result.json
+          retention-days: 7
+
