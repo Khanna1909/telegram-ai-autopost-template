@@ -45,3 +45,16 @@ def require_secret(name: str) -> str:
         raise ConfigError(f"Required secret {name} is empty")
     return value
 
+
+def validate_for_live(config: dict[str, Any]) -> None:
+    signature = str(config["brand"].get("signature", "")).strip()
+    if not signature or signature == "YOUR BRAND / YOUR NAME":
+        raise ConfigError("Replace the placeholder brand.signature in user_config.yaml")
+
+    channel = str(config["telegram"].get("channel_id", "")).strip()
+    if channel == "@YOUR_CHANNEL":
+        channel = os.getenv("TELEGRAM_CHANNEL_ID", "").strip()
+    if not channel:
+        raise ConfigError(
+            "Set telegram.channel_id or the TELEGRAM_CHANNEL_ID secret"
+        )
