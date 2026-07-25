@@ -1,0 +1,28 @@
+# Edit this file after pressing "Use this template".
+brand:
+  signature: "YOUR BRAND / YOUR NAME"
+  image_intro: "Промпт ниже 👇"
+  post_footer: ""
+
+generation:
+  provider: "kie"
+  model: "gpt-image-2-text-to-image"
+  aspect_ratio: "3:4"
+  api_base_url: "https://api.kie.ai"
+  poll_timeout_seconds: 900
+  min_image_width: 512
+  min_image_height: 512
+  max_generations_per_day: 3
+
+telegram:
+  enabled: false
+  channel_id: "@YOUR_CHANNEL"
+
+safety:
+  dry_run: true
+  require_explicit_live_flag: true
+
+content:
+  timezone: "Europe/Moscow"
+  examples_file: "data/examples.yaml"
+
