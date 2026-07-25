@@ -7,8 +7,8 @@ import pytest
 from PIL import Image
 
 from telegram_ai_autopost.app import run_release
-from telegram_ai_autopost.config import live_mode
-from telegram_ai_autopost.content import release_id, select_example
+from telegram_ai_autopost.config import ConfigError, live_mode, validate_for_live
+from telegram_ai_autopost.content import content_horizon_days, release_id, select_example
 from telegram_ai_autopost.media import InvalidMediaError, validate_image
 from telegram_ai_autopost.models import ContentExample, ReleaseState, VisualMode
 from telegram_ai_autopost.prompts import build_visual_prompt
@@ -106,6 +106,15 @@ def test_default_config_is_not_live(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("TELEGRAM_ENABLED", raising=False)
     monkeypatch.delenv("ALLOW_LIVE_PUBLISH", raising=False)
     assert live_mode(config()) is False
+
+
+def test_placeholder_signature_is_blocked_for_live() -> None:
+    with pytest.raises(ConfigError):
+        validate_for_live(config())
+
+
+def test_content_horizon_is_explicit() -> None:
+    assert content_horizon_days([example() for _ in range(9)]) == 3
 
 
 @pytest.mark.parametrize(
@@ -338,4 +347,3 @@ def test_state_round_trip(tmp_path: Path) -> None:
     value = ReleaseState(release_id="release", example_id="example")
     store.save(value)
     assert store.get("release") == value
-
