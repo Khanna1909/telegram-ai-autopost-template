@@ -26,7 +26,23 @@ def load_examples(path: str | Path) -> list[ContentExample]:
     ]
     if len(examples) < 3:
         raise ValueError("Add at least three examples")
+    ids = [item.id for item in examples]
+    if any(not item_id.strip() for item_id in ids):
+        raise ValueError("Every example must have a non-empty id")
+    if len(ids) != len(set(ids)):
+        raise ValueError("Every example id must be unique")
+    for item in examples:
+        if not item.title.strip() or not item.post_text.strip():
+            raise ValueError(f"Example {item.id} needs title and post_text")
+        if not item.visual_prompt.strip():
+            raise ValueError(f"Example {item.id} needs visual_prompt")
+        if item.mode == VisualMode.EDUCATIONAL and not item.card_text.strip():
+            raise ValueError(f"Example {item.id} needs card_text")
     return examples
+
+
+def content_horizon_days(examples: list[ContentExample]) -> int:
+    return len(examples) // len(SLOT_INDEX)
 
 
 def select_example(
@@ -46,4 +62,3 @@ def release_id(local_date: date, slot: str) -> str:
 
 def timezone(name: str) -> ZoneInfo:
     return ZoneInfo(name)
-
