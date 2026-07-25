@@ -10,6 +10,7 @@ on:
         type: choice
         options:
           - safe-check
+          - doctor
           - generate
           - catch-up
       slot:
@@ -67,7 +68,7 @@ jobs:
         shell: bash
         run: |
           live=false
-          if [[ "$OPERATION" != "safe-check" && "$CONFIRM_LIVE" == "true" && "$DRY_RUN" == "false" && "$TELEGRAM_ENABLED" == "true" ]]; then
+          if [[ "$OPERATION" != "safe-check" && "$OPERATION" != "doctor" && "$CONFIRM_LIVE" == "true" && "$DRY_RUN" == "false" && "$TELEGRAM_ENABLED" == "true" ]]; then
             live=true
           fi
           echo "live=$live" >> "$GITHUB_OUTPUT"
@@ -117,4 +118,3 @@ jobs:
           path: preview/result.json
           if-no-files-found: error
           retention-days: 7
-

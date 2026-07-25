@@ -17,6 +17,23 @@ class TelegramClient:
         self.base_url = f"https://api.telegram.org/bot{bot_token}"
         self.session = session or requests.Session()
 
+    def check_connection(self) -> dict[str, str | int | bool]:
+        bot_response = self.session.get(f"{self.base_url}/getMe", timeout=30)
+        bot = self._result(bot_response)
+        chat_response = self.session.get(
+            f"{self.base_url}/getChat",
+            params={"chat_id": self.channel_id},
+            timeout=30,
+        )
+        chat = self._result(chat_response)
+        return {
+            "ok": True,
+            "bot_id": int(bot["id"]),
+            "bot_username": str(bot.get("username", "")),
+            "chat_id": int(chat["id"]),
+            "chat_title": str(chat.get("title", chat.get("username", ""))),
+        }
+
     def send_photo(self, path: str | Path, caption: str = "") -> int:
         with Path(path).open("rb") as photo:
             response = self.session.post(
@@ -44,11 +61,15 @@ class TelegramClient:
 
     @staticmethod
     def _message_id(response: requests.Response) -> int:
+        return int(TelegramClient._result(response)["message_id"])
+
+    @staticmethod
+    def _result(response: requests.Response) -> dict:
         response.raise_for_status()
         payload = response.json()
         if not payload.get("ok"):
             raise TelegramError(payload.get("description") or "Telegram request failed")
-        return int(payload["result"]["message_id"])
+        return payload["result"]
 
 
 def split_text(text: str, limit: int) -> list[str]:
@@ -65,4 +86,3 @@ def split_text(text: str, limit: int) -> list[str]:
     if remaining:
         chunks.append(remaining)
     return chunks
-
