@@ -28,6 +28,22 @@ class KieClient:
             }
         )
 
+    def check_connection(self) -> dict[str, Any]:
+        response = self.session.get(
+            f"{self.base_url}/api/v1/chat/credit",
+            timeout=30,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        if payload.get("code") != 200:
+            raise KieError(
+                f"KIE connection failed: {payload.get('msg', 'unknown error')}"
+            )
+        return {
+            "ok": True,
+            "credits": (payload.get("data") or {}).get("credit"),
+        }
+
     def create_image_task(
         self, *, model: str, prompt: str, aspect_ratio: str
     ) -> str:
@@ -83,4 +99,3 @@ class KieClient:
                     if chunk:
                         output.write(chunk)
         return path
-
