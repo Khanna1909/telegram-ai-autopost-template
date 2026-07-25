@@ -1,0 +1,58 @@
+examples:
+  - id: calm-morning
+    mode: clean_visual
+    title: "Тихое утро"
+    post_text: "Сохраните промпт и адаптируйте детали под свою задачу."
+    visual_prompt: "A quiet editorial morning scene with warm window light, a ceramic cup, an open notebook and soft linen textures, refined natural photography, vertical 3:4 composition."
+
+  - id: creative-desk
+    mode: signature_visual
+    title: "Творческий стол"
+    post_text: "Небольшая идея для атмосферной предметной съёмки."
+    visual_prompt: "An elegant creative desk with color swatches, a fountain pen and soft directional studio light, contemporary luxury editorial photography, vertical 3:4 composition."
+
+  - id: prompt-checklist
+    mode: educational_card
+    title: "Формула визуального промпта"
+    post_text: "Карточка-шпаргалка для подготовки визуального промпта."
+    card_text: "ФОРМУЛА ПРОМПТА\n1. Объект\n2. Действие\n3. Среда\n4. Свет\n5. Стиль\n6. Формат"
+    visual_prompt: "A clean premium educational checklist card with strong hierarchy, generous spacing, black, white and one bright accent color, vertical 3:4 composition."
+
+  - id: botanical-study
+    mode: clean_visual
+    title: "Ботанический этюд"
+    post_text: "Промпт можно использовать как основу для серии визуалов."
+    visual_prompt: "A refined botanical still life with translucent leaves, glass, water reflections and controlled gallery lighting, realistic materials, vertical 3:4 composition."
+
+  - id: future-library
+    mode: signature_visual
+    title: "Библиотека будущего"
+    post_text: "Сохраните идею и замените палитру на фирменную."
+    visual_prompt: "A cinematic library of the near future with floating translucent interfaces, real books, warm reading lamps and deep architectural perspective, photorealistic, vertical 3:4 composition."
+
+  - id: video-steps
+    mode: educational_card
+    title: "Перед генерацией видео"
+    post_text: "Короткая памятка, которая помогает не терять сюжет по дороге."
+    card_text: "ПЕРЕД ГЕНЕРАЦИЕЙ ВИДЕО\n• зафиксируйте героя\n• задайте одно действие\n• опишите движение камеры\n• укажите длительность\n• запретите лишний текст"
+    visual_prompt: "A modern educational card about video prompting, editorial grid, clear Russian typography, subtle cinematic frame motifs, vertical 3:4 composition."
+
+  - id: glass-city
+    mode: clean_visual
+    title: "Стеклянный город"
+    post_text: "Экспериментируйте с масштабом, светом и отражениями."
+    visual_prompt: "A miniature glass city on a dark reflective table, precise optical reflections, restrained cyan and amber light, high-end product photography, vertical 3:4 composition."
+
+  - id: paper-sculpture
+    mode: signature_visual
+    title: "Бумажная скульптура"
+    post_text: "Подходит для обложки, постера или серии брендовых иллюстраций."
+    visual_prompt: "A monumental folded-paper sculpture with soft shadows and museum lighting, tactile fibers, minimal gallery background, contemporary art photography, vertical 3:4 composition."
+
+  - id: ai-comparison
+    mode: educational_card
+    title: "Три режима работы с ИИ"
+    post_text: "Простая карточка для объяснения разницы между тремя типами задач."
+    card_text: "ТРИ РЕЖИМА РАБОТЫ С ИИ\nЧАТ — обсуждает\nПОИСК — находит источники\nАГЕНТ — выполняет шаги"
+    visual_prompt: "A premium comparison card with three clearly separated columns, Russian typography, simple icons, dark background and bright accents, vertical 3:4 composition."
+
