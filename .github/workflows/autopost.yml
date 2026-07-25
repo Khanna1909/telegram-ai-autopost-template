@@ -1,0 +1,120 @@
+name: Telegram AI Autopost
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "safe-check does not call KIE or Telegram"
+        required: true
+        default: "safe-check"
+        type: choice
+        options:
+          - safe-check
+          - generate
+          - catch-up
+      slot:
+        description: "Used by safe-check and generate"
+        required: true
+        default: "morning"
+        type: choice
+        options:
+          - morning
+          - day
+          - evening
+      confirm_live:
+        description: "Required for paid generation and Telegram publishing"
+        required: true
+        default: false
+        type: boolean
+  repository_dispatch:
+    types: [autopost]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: telegram-ai-autopost-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      OPERATION: ${{ inputs.operation || github.event.client_payload.operation || 'safe-check' }}
+      SLOT: ${{ inputs.slot || github.event.client_payload.slot || 'morning' }}
+      CONFIRM_LIVE: ${{ inputs.confirm_live || github.event.client_payload.confirm_live || 'false' }}
+      DRY_RUN: ${{ vars.DRY_RUN || 'true' }}
+      TELEGRAM_ENABLED: ${{ vars.TELEGRAM_ENABLED || 'false' }}
+      KIE_API_KEY: ${{ secrets.KIE_API_KEY }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+
+    steps:
+      - name: Check out template
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install project
+        run: python -m pip install -e ".[test]"
+
+      - name: Resolve safety mode
+        id: safety
+        shell: bash
+        run: |
+          live=false
+          if [[ "$OPERATION" != "safe-check" && "$CONFIRM_LIVE" == "true" && "$DRY_RUN" == "false" && "$TELEGRAM_ENABLED" == "true" ]]; then
+            live=true
+          fi
+          echo "live=$live" >> "$GITHUB_OUTPUT"
+          echo "ALLOW_LIVE_PUBLISH=$live" >> "$GITHUB_ENV"
+
+      - name: Prepare persistent state
+        if: steps.safety.outputs.live == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config --global user.name "telegram-ai-autopost[bot]"
+          git config --global user.email "telegram-ai-autopost[bot]@users.noreply.github.com"
+          remote="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git ls-remote --exit-code --heads "$remote" state >/dev/null 2>&1; then
+            git clone --branch state --single-branch "$remote" state-data
+          else
+            git clone "$remote" state-data
+            cd state-data
+            git checkout --orphan state
+            git rm -rf .
+            echo "# Runtime state" > README.md
+            echo "This branch is managed by the workflow. Do not edit it manually." >> README.md
+            git add README.md
+            git commit -m "Initialize runtime state"
+            git push --set-upstream origin state
+            cd ..
+          fi
+          echo "STATE_AUTO_PUSH=true" >> "$GITHUB_ENV"
+
+      - name: Prepare temporary state
+        if: steps.safety.outputs.live != 'true'
+        run: mkdir -p state-data
+
+      - name: Run safe check or publication
+        run: |
+          python -m telegram_ai_autopost \
+            --operation "$OPERATION" \
+            --slot "$SLOT" \
+            --state-file state-data/state.json \
+            --output preview/result.json
+
+      - name: Upload review artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: telegram-ai-autopost-preview-${{ github.run_id }}
+          path: preview/result.json
+          if-no-files-found: error
+          retention-days: 7
+
